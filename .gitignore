@@ -1,0 +1,4 @@
+*.dSYM
+*.dat
+data*
+data_new
