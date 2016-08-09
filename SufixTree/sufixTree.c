@@ -12,6 +12,7 @@ ignore the building time for
 #include <stdlib.h>
 #include "sufixTree.h"
 #include "linked.h"
+#include "dbg.h"
 
 
 #define MAX 10
@@ -264,7 +265,6 @@ void createNode(SNode* tree, Node** index, Node* input, int length, int label){
     int comparison = compareListPrefix(tree -> childrens, (index[length]) -> val);
     if(comparison == 0){
         printf(" comparison no match, length now = %d\n", length);
-        // printf("Tree: %d, inputHead: %c\n", tree -> type, input -> next -> val);
         createBranch(tree, input, length, label);
     } else if(comparison == -1){
         printf(" comparison reach $\n");
@@ -288,7 +288,6 @@ int main() {
     FILE* file1;
     file1 = fopen("data1", "r");
     Node* inputList1 = newNode();
-    // inputList -> val = '$';
     int inputList_length = 0;
     int base;
     while((base = fgetc(file)) != EOF){
@@ -317,36 +316,22 @@ This should be optimized by double Queue.
     SNode* tree = createRoot();
 
     createBranch(tree, inputList, 1, 0);
-    // // printf("[TEST]: edge = %c, type = %d\n", tree -> childrens -> node -> edge, tree -> childrens -> node -> type);
-    // // printf("[TEST]: edge = %c, type = %d\n", tree -> childrens -> node -> childrens -> node -> edge, tree -> childrens -> node -> childrens -> node -> type);
-    // // printf("[TEST]: edge = %c, type = %d\n", tree -> childrens -> node -> childrens -> node -> childrens -> node -> edge, tree -> childrens -> node -> childrens -> node -> childrens -> node -> type);
+
 
 
     int i = 1;
     while (i <= inputList_length) {
         createNode(tree, index, inputList, i, 0);
         i = i + 1;
-        printf("--------\n");
     }
 
-    // print_SN1stChildren(tree);
-    // print_SN1stChildren(tree -> childrens -> next -> node);
-    // print_SN1stChildren(tree -> childrens -> node -> childrens -> next -> node);
-    // printf("file 1 done\n");
-    // printf("Now First node %c has childrens: ", tree -> childrens -> node -> edge);
-    // print_SNlist(tree -> childrens -> node -> childrens);
-    // printf("\n");
 
     int j = 1;
     while (j <= inputList_length1) {
-        printf("%d\n", j);
         createNode(tree, index1, inputList1, j, 1);
         j = j + 1;
     }
 
-    print_list(tree -> label);
-    // printf("%c\n", tree -> childrens -> next -> node -> edge);
-    // printf("%c\n", tree -> childrens -> next -> node -> childrens -> node -> edge);
 
     freeSNode(tree);
     free_list(inputList);
