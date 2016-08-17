@@ -3,7 +3,7 @@
 
 
 ### Briefly Complexity Discuss
-The complexity of this Suffix Tree building algorithm is from O(n) to O(n!)
+The complexity of this Suffix Tree building algorithm is from O(n) to O(n^2)
 
 This claim of complexity is based on how many times that new Node/Knob appending happens.
 

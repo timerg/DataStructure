@@ -1,13 +1,13 @@
 CFLAGS=-Wall -g
 
-all:
-	test
+all: myTest
 
-test:	linked.o
+myTest:	linked.o
+
 
 
 clean:
-	rm -f test linked.o
+	rm -f myTest linked.o
 
   # make can't see anything in the file for object.o,
   # but it does see an object.c file,

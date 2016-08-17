@@ -7,46 +7,79 @@ For a branch with size of n, it takes n time.
 ignore the building time for
 */
 
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "sufixTree.h"
 #include "linked.h"
-#include "dbg.h"
 
 
-#define MAX 10
-#define ROOT -1
-#define NODE 1
-#define KNOT 0
-#define LEAF -2
 
 
-typedef struct SNode {
-    // ROOT, KNOT, NODE, LEAF
-    int type;
+void print_tree(SNode* tree, int indent){
+    switch(tree -> type){
+        case ROOT:
+            indent = indent + 1;
+            print_treeChildren(tree -> childrens, indent);
+            break;
+        case NODE:
+            indent = indent + 1;
+            printf(" %c\n", tree -> edge);
+            print_treeChildren(tree -> childrens, indent);
+            break;
+        case KNOT:
+            printf(" %c", tree -> edge);
+            print_tree(tree -> childrens -> node, indent);
+            break;
+        case LEAF:
+            printf(" $\n");
+    }
+}
 
-    // ROOT, KNOT, NODE Only
-    ListOfSNode* childrens;
+void print_treeChildren(ListOfSNode* tree, int indent){
+    if(tree -> type == NIL){
+    } else {
+        for(int i = 0; i < indent; i++){
+            printf("  ");
+        };
+        print_tree(tree -> node, indent);
+        print_treeChildren(tree -> next, indent);
+    }
+}
 
-    // ROOT, NODE Only. For LEAF it's '$'
-    int edge;
+void print_label(SNode* tree, int indent){
+    switch(tree -> type){
+        case ROOT:
+            indent = indent + 1;
+            print_list(tree -> label);
+            printf("\n");
+            print_labelChildren(tree -> childrens, indent);
+            break;
+        case NODE:
+            indent = indent + 1;
+            print_list(tree -> label);
+            printf("\n");
+            print_labelChildren(tree -> childrens, indent);
+            break;
+        case KNOT:
+            print_list(tree -> label);
+            print_label(tree -> childrens -> node, indent);
+            break;
+        case LEAF:
+            printf(" $\n");
+    }
+}
 
-    // NODE Only
-    Node* label;
-
-    // LEAF Only
-    int position;
-    int depth;
-
-} SNode;
-
-
-typedef struct ListOfSNode {
-    int type;
-    SNode* node;
-    ListOfSNode* next;
-} ListOfSNode;
+void print_labelChildren(ListOfSNode* tree, int indent){
+    if(tree -> type == NIL){
+    } else {
+        for(int i = 0; i < indent; i++){
+            printf("  ");
+        };
+        print_label(tree -> node, indent);
+        print_labelChildren(tree -> next, indent);
+    }
+}
 
 
 
@@ -82,7 +115,6 @@ ListOfSNode* createSNlist(){
 
 void print_SNlist(ListOfSNode* list){
     if(list -> type == NIL){
-        // printf("%c ", list -> node -> edge);
     } else {
         printf("%c ", list -> node -> edge);
         print_SNlist(list -> next);
@@ -104,7 +136,6 @@ void print_SN1stChildren(SNode* node){
 
 ListOfSNode* theNthList(ListOfSNode* list, int position){
     if(position == 1){
-        // printf("%d\n", list -> node -> edge);
         return(list);
     } else if(position < 0){
         printf("negative position || Index failed\n");
@@ -134,10 +165,10 @@ ListOfSNode* freeNthsnode(ListOfSNode* list, int position){
     }
 }
 
-SNode* createKnot(){
+SNode* createKnot(int label){
     SNode* new = malloc(sizeof(SNode));
     new -> type = KNOT;
-    new -> label = newNode();
+    new -> label = cons(label, newNode());
     new -> childrens = createSNlist();
     return(new);
 }
@@ -162,16 +193,15 @@ SNode* createLeaf(int depth, int position){
     return(leaf);
 }
 
-SNode* createAscend(SNode* node, Node* input, int n) {
+SNode* createAscend(SNode* node, Node* input, int n, int label) {
     if(n == 0){
         return(node);
     } else if (n > 0){
-        SNode* new = createKnot();
+        SNode* new = createKnot(label);
         new -> type = KNOT;
         new -> edge = input -> val;
-        // printf("[CREATEASCEND] edge is %c\n", input -> val);
         new -> childrens = consSN(node, new -> childrens);
-        return(createAscend(new, input -> next, n - 1));
+        return(createAscend(new, input -> next, n - 1, label));
     } else {
         exit(2);
     };
@@ -182,30 +212,22 @@ void createBranch(SNode* node, Node* input, int n, int label){
     if(node -> type != ROOT) {
         node -> type = NODE;
     };
-    if(!ifexist(node -> label, label)) {
+    if(node -> label -> val != label){
         node -> label = cons(label, node -> label);
     };
 
     SNode* leaf = createLeaf(1, n);
     if(n > 0){
-        // SNode* end = createKnot();
-        // end -> childrens = consSN(leaf, end -> childrens);
-        // end -> edge = input -> next -> val;
-        // SNode* branchHead = createAscend(end, input -> next -> next, n - 1);
-        // node -> childrens = consSN(branchHead, node -> childrens);
-
-        SNode* branchHead = createAscend(leaf, input -> next, n);
-        // printf("[CREATEBRANCH] BranchHead = %c \n", branchHead -> edge);
+        SNode* branchHead = createAscend(leaf, input -> next, n, label);
         node -> childrens = consSN(branchHead, node -> childrens);
     } else if(n == 0){
-        printf("[CREATEBRANCH] LEAF Only created\n");
         node -> childrens = consSN(leaf, node -> childrens);
     } else exit(2);
 }
 
 
 // start from 1; if no match then give 0
-int compareListPrefix (ListOfSNode* list, int input){
+int findBranchIndex (ListOfSNode* list, int input){
     if (list -> type == NIL){
         return(0);
     }
@@ -216,15 +238,16 @@ int compareListPrefix (ListOfSNode* list, int input){
             return(1);
         }
     } else {
-        if (compareListPrefix(list -> next, input) == 0){
+        int x = findBranchIndex(list -> next, input);
+        if (x == 0){
             return(0);
         } else {
-            return (1 + compareListPrefix(list -> next, input));
+            return (1 + x);
         }
     }
 }
 
-/* The Hskell version for compareListPrefix:
+/* The Hskell version for findBranchIndex:
 findlist :: Int -> [Int] -> Maybe Int
 findlist x [] = Nothing
 findlist x (s:xs) = if x == s then Just 1
@@ -261,82 +284,29 @@ If the nth child match,
     Kill the old one and paste the newone. (updateChild)
 */
 void createNode(SNode* tree, Node** index, Node* input, int length, int label){
-    printf("[CREATENODE]: %c\n", index[length] -> val);
-    int comparison = compareListPrefix(tree -> childrens, (index[length]) -> val);
-    if(comparison == 0){
-        printf(" comparison no match, length now = %d\n", length);
+    int branchIndex = findBranchIndex(tree -> childrens, (index[length]) -> val);
+    if(tree -> type != LEAF){
+        if(tree -> label -> type == NIL){
+            tree -> label = cons(label, tree -> label);
+        } else {
+            if(tree -> label -> val != label){
+                tree -> label = cons(label, tree -> label);
+            }
+        }
+    }
+    if(branchIndex == 0){
+        // printf("[No match, create new branch\n");
         createBranch(tree, input, length, label);
-    } else if(comparison == -1){
-        printf(" comparison reach $\n");
+    } else if(branchIndex == -1){
         tree -> childrens = consSN(createLeaf(1, length), tree -> childrens);
     } else {
-        printf(" comparison match\n");
-        if(tree -> type != LEAF && !ifexist(tree -> label, label)){
-                tree -> label = cons(label, tree -> label);
-        }
-        createNode(thechild(tree, comparison), index, input -> next, length - 1, label);
+        // printf("Match, find descend\n");
+        createNode(thechild(tree, branchIndex), index, input, length - 1, label);
     }
 }
 
 
 
 
-int main() {
-    FILE* file;
-    file = fopen("data", "r");
-    Node* inputList = newNode();
-    FILE* file1;
-    file1 = fopen("data1", "r");
-    Node* inputList1 = newNode();
-    int inputList_length = 0;
-    int base;
-    while((base = fgetc(file)) != EOF){
-        inputList = cons(base, inputList);
-        inputList_length = inputList_length + 1 ;
-    };
-    inputList = cons('$', inputList);
-    int inputList_length1 = 0;
-    while((base = fgetc(file1)) != EOF){
-        inputList1 = cons(base, inputList1);
-        inputList_length1 = inputList_length1 + 1 ;
-    };
-    inputList1 = cons('$', inputList1);
-
-/* The index is needed
-to make comparison(new sufix compare with existed branches' prefix).
-    Because the head of the new sufix is burried at the bottom of linked list(stack).
-This should be optimized by double Queue.
-*/
-    Node* index[sizeof(Node) * inputList_length];
-    indexNode(index, inputList, 0);
-    Node* index1[sizeof(Node) * inputList_length1];
-    indexNode(index1, inputList1, 0);
 
 
-    SNode* tree = createRoot();
-
-    createBranch(tree, inputList, 1, 0);
-
-
-
-    int i = 1;
-    while (i <= inputList_length) {
-        createNode(tree, index, inputList, i, 0);
-        i = i + 1;
-    }
-
-
-    int j = 1;
-    while (j <= inputList_length1) {
-        createNode(tree, index1, inputList1, j, 1);
-        j = j + 1;
-    }
-
-
-    freeSNode(tree);
-    free_list(inputList);
-    free_list(inputList1);
-    fclose(file);
-    fclose(file1);
-    return(0);
-}

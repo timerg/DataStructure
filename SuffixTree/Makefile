@@ -1,13 +1,12 @@
 CFLAGS=-Wall -g
 
-all:
-	sufixTree
+all: myTest
 
-sufixTree:	linked.o 
+myTest:	linked.o sufixTree.o
 
 
 clean:
-	rm -f sufixTree linked.o linked
+	rm -f sufixTree linked linked.o sufixTree.o
 
   # make can't see anything in the file for object.o,
   # but it does see an object.c file,
