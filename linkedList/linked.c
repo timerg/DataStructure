@@ -188,7 +188,7 @@ int* kmp_table(Node** w, int l_w){
     table[0] = -1;
     table[1] = 0;
     int i = 0;
-    int j = 1;
+    int j = 2;
     while(j < l_w){
         if(w[j - 1] -> val == w[i] -> val){
             i = i + 1;
@@ -212,7 +212,7 @@ int kmp_search(Node** s, Node** w, int* table, int l_s, int l_w, int start){
             if(i == l_w - 1){
                 return m;
             }
-            m = m + 1;
+            i = i + 1;
         } else{
             if(table[i] > -1){
                 m = m + i - table[i];
@@ -226,6 +226,9 @@ int kmp_search(Node** s, Node** w, int* table, int l_s, int l_w, int start){
     return l_s;
 }
 
+// Ex: list1 = GUACUAC[]; list2 = AC[]
+// Result = 3, 6
+
 Node* doKmp(Node* list1, Node* list2){
 
     int l_1 = length(list1);
@@ -235,14 +238,17 @@ Node* doKmp(Node* list1, Node* list2){
     Node* index2[l_2];
     indexNode(index2, list2, 0);
     int* table = kmp_table(index2, l_2);
-
     int p = 0;
     Node* output = newNode();
-    while(p < l_1){
+    loop:
         p = kmp_search(index1, index2, table, l_1, l_2, p);
+        if(p == l_1){
+            goto stop;
+        }
         output = cons(p, output);
         p++;
-    }
+        goto loop;
+    stop:
     free(table);
     return output;
 }

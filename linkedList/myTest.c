@@ -7,10 +7,9 @@
 
 
 int main() {
-    Node* list = cons(4, cons(5, cons(8, cons(3, newNode()))));
-    Node* list_2 = cons(4, cons(3, newNode()));
-    print_list(list);
-    Node* output = doKmp(list, list_2, 4, 2);
+    Node* list = cons(3, cons(4, cons(5, cons(3, newNode()))));
+    Node* list_2 = cons(4, cons(5, newNode()));
+    Node* output = doKmp(list, list_2);
 
 
     print_list(output);
