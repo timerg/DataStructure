@@ -5,24 +5,8 @@ import Prelude hiding (readFile)
 import Heap.Lib
 import Data.ByteString.Char8 (ByteString, readFile)
 import Data.Attoparsec.ByteString.Char8
---
--- main :: IO ()
--- main = do
---     input <- parseArray <$> (readFile "data/data")
---
---     print input
---     return ()
---
---
---
--- parseArray' :: Parser [Int]
--- parseArray' = do
---         result <- many' $ satisfy isDigit
---         endOfInput
---         return result
---
--- parseArray :: ByteString -> Maybe [Int]
--- parseArray = _
+
+
 
 
 

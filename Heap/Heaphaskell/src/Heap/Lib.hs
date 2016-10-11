@@ -1,7 +1,20 @@
 module Heap.Lib where
 
+
 data Eitherer a b = Lefter a | Righter b deriving (Read, Show)
+
+instance (Eq a, Eq b) => Eq (Eitherer a b) where
+    Righter a == Righter b = a == b
+    Lefter a == Lefter b = False
+
+instance (Ord a, Ord b) => Ord (Eitherer a b) where
+    compare (Righter a) (Righter c) = compare a c
+    compare (Righter a) (Lefter b) = GT
+    compare (Lefter a) (Righter b) = LT
+
+
 data Node = Leaf Int | Node Int deriving (Show)
+
 instance Eq Node where
     Leaf a == Leaf b = a == b
     Node a == Node b = a == b
@@ -13,27 +26,23 @@ instance Ord Node where
     compare (Node a) (Node b) = compare a b
     compare (Node a) (Leaf b) = compare a b
 
-(!.!) :: [a] -> Int -> Eitherer String a
-(!.!) (s:xs) 1 = Righter s
-(!.!) [] i = Lefter "index overflow"
-(!.!) (s:xs) i = xs !.! (i - 1)
-
-
 val :: Node -> Int
 val (Leaf a) = a
 val (Node a) = a
--- val (Node_single a) = a
--- val (Root a) = a
+
 
 node :: Int -> Node
 node a = Node a
 
--- node_single :: Int -> Node
--- node_single a = Node_single a
 
 leaf :: Int -> Node
 leaf a = Leaf a
 
+
+(!.!) :: [a] -> Int -> Eitherer String a
+(!.!) (s:xs) 1 = Righter s
+(!.!) [] i = Lefter "index overflow"
+(!.!) (s:xs) i = xs !.! (i - 1)
 
 typify :: [Int] -> [Node]
 typify xs = reunion $ nodefy $ splitAt (parent (length xs)) xs
@@ -83,18 +92,11 @@ heapify xs i = let fstchild = xs !.! (i * 2)
                                    Two -> heapify (switch i (i * 2) xs) (i * 2)
                                    Three -> heapify (switch i (i * 2 + 1) xs) (i * 2 + 1)
 
-instance (Eq a, Eq b) => Eq (Eitherer a b) where
-    Righter a == Righter b = a == b
-    Lefter a == Lefter b = False
 
-instance (Ord a, Ord b) => Ord (Eitherer a b) where
-    compare (Righter a) (Righter c) = compare a c
-    compare (Righter a) (Lefter b) = GT
-    compare (Lefter a) (Righter b) = LT
+
 
 
 data Three = One | Two | Three
-
 
 maxFamily :: (Ord a) => Eitherer a Node -> Eitherer a Node -> Eitherer a Node -> Three
 maxFamily a b c =  let max' = maximum [a, b, c] in
@@ -105,15 +107,16 @@ maxFamily a b c =  let max' = maximum [a, b, c] in
                     else  Three
 
 
+
+-- Heap Sort
+
 heapSort xs = heapSort' l $ heapify (typify xs) l
                     where l = length xs
---
+
 heapSort' :: Int -> [Node] -> [Int]
 heapSort' 1 (s:[]) = (val s):[]
 heapSort' i (s:xs) = (heapSort' (i - 1) $ heapify (init $ switch 1 i (s:xs)) 1) ++ [val s]
 
--- init' :: [Node] -> [Node]
--- init' xs =
 
 
 
