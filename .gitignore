@@ -2,3 +2,5 @@
 *.dat
 data*
 data_new
+.stack-work
+LICENSE
