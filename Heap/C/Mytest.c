@@ -9,7 +9,7 @@
 
 void testA(){
     int test[5] = {1, 2, 3, 4, 5};
-    Heap* testHeap = arrayToTree(test, sizeof(test)/4);
+    Heap* testHeap = buildTree(test, sizeof(test)/4);
     assert(testHeap -> root != NULL);
     assert(testHeap -> root -> val == 1);
     assert(testHeap -> root -> leftchild != NULL);
@@ -22,23 +22,21 @@ void testA(){
     assert(testHeap -> root -> leftchild -> leftchild -> val = 4);
     assert(testHeap -> root -> leftchild -> leftchild -> leftchild == NULL);
     assert(testHeap -> root -> leftchild -> rightchild -> val = 5);
-    printHeap(testHeap, "./data_output.txt");
+    assert(testHeap -> size = sizeof(test)/4)
+    printHeap(testHeap, "./data_output_test.txt");
     freeHeap(testHeap);
+}
+
+void testB(){
+    int test[10] = {8, 3, 2, 9, 4, 1, 6, 5, 7, 0};
+    Heap* testHeap = buildTree(test, sizeof(test)/4);
+    heapify(testHeap -> last);
+    assert(testHeap -> root -> val == test[9]);
 }
 
 
 int main() {
-    testA();
-    typedef struct N{
-        int* a;
-        int b;
-    } N;
-    N* n1 = malloc(sizeof(N));
-    n1 -> b = 1;
-    // printf("%d\n", *n1 -> a == NULL);
-    free(n1);
-    // a = a_temp;
-    // a_temp = NULL;
-    // printf("a=%d, b=%d\n", *a, *b);
+    // testA();
+    testB();
     return 0;
 }
