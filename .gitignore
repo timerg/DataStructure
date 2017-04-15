@@ -1,6 +1,7 @@
 *.dSYM
 *.dat
 data*
-data_new
 .stack-work
 LICENSE
+*.ymal
+*.o
