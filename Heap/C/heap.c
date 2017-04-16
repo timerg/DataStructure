@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <math.h>
 #include "heap.h"
 
 
@@ -17,109 +18,191 @@ Node* newNode(){
     return node;
 }
 
-void swapValue(Node* node){
-    int mem_temp = node -> val;
-    node -> val = node -> parent -> val;
-    node -> parent -> val = mem_temp;
+void swapValue(Node* node1, Node* node2){
+    int mem_temp = node1 -> val;
+    node1 -> val = node2 -> val;
+    node2 -> val = mem_temp;
 }
 
-void free_nodes_descent(Node* node){
-    switch (node -> type) {
-        case 2:
-            free_nodes_descent(node -> rightchild);
-        case 1:
-            free_nodes_descent(node -> leftchild);
-        case 0:
-            free(node);
+Heap* openTree(int size) {
+    Heap* heap = malloc(sizeof(Heap));
+    heap -> size = size;
+    heap -> heapArray = malloc(size * sizeof(Node*));
+    for(int i = 0; i < size; i++){
+       heap -> heapArray[i] = newNode();
+    }
+   // build parent relation
+   for(int j = size - 1; j > 0; j--){
+       int p = ceil(j/2) - 1;
+       heap -> heapArray[j] -> parent = heap -> heapArray[p];
+   }
+   // build children relation
+   for(int k = 0; k < size; k++){
+       int rightNum = 2*(k + 1);
+       int leftNum = rightNum - 1;
+       if(rightNum < size){
+           heap -> heapArray[k] -> rightchild = heap -> heapArray[rightNum];
+           heap -> heapArray[k] -> leftchild = heap -> heapArray[leftNum];
+           heap -> heapArray[k] -> type = FULL;
+       } else if(leftNum < size){
+           heap -> heapArray[k] -> leftchild = heap -> heapArray[leftNum];
+           heap -> heapArray[k] -> type = SINGLE;
+       }
+   }
+    return heap;
+}
+
+
+
+
+void heapify(Node* node, int size){
+    int n_val = node -> val;
+    if(node -> type == SINGLE) {
+        int l_val = node -> leftchild -> val;
+        if(n_val > l_val){
+            swapValue(node, node -> leftchild);
+            heapify(node -> leftchild, size);
+        }
+    } else if(node -> type == FULL) {
+        int l_val = node -> leftchild -> val;
+        int r_val = node -> rightchild -> val;
+        if(n_val > l_val){
+            if(l_val > r_val){
+                swapValue(node, node -> rightchild);
+                heapify(node -> rightchild, size);
+            } else {
+                swapValue(node, node -> leftchild);
+                heapify(node -> leftchild, size);
+            }
+        } else {
+            if(n_val > r_val){
+                swapValue(node, node -> rightchild);
+                heapify(node -> rightchild, size);
+            }
+        }
     }
 }
 
 
-Heap* openHeap() {
-    Heap* heap = malloc(sizeof(Heap));
-    heap -> last = NULL;
-    heap -> root = newNode();
-    heap -> size = 1;
+
+
+Heap* buildHeap_(int* array, int size){
+    Heap* heap = openTree(size);
+   for(int i = 0;i < size; i++){
+       heap -> heapArray[i] -> val = array[i];
+   }
+    int j = size;
+    while(j > 1){
+        int p = floor(j / 2);
+        heap -> heapArray[j - 1] -> parent = heap -> heapArray[p - 1];
+        j = j - 1;
+    }
     return heap;
 }
 
+
+Heap* buildHeap(int* array, int size){
+    Heap* heap = buildHeap_(array, size);
+    for(int k = floor(size/2); k >= 0; k--){
+        heapify(heap -> heapArray[k], heap -> size);
+    }
+    return heap;
+}
+
+Node* extractMin(Heap* heap){
+    int last = heap -> size - 1;
+    swapValue(heap -> heapArray[0], heap -> heapArray[last]);
+    Node* minNode = heap -> heapArray[last];
+    // remove pointer from min's parent
+    if(minNode -> parent -> type == FULL){
+        minNode -> parent -> type = SINGLE;
+        minNode -> parent -> rightchild = NULL;
+    } else if(minNode -> parent -> type == SINGLE){
+        minNode -> parent -> type = NIL;
+        minNode -> parent -> leftchild = NULL;
+    }
+
+    heap -> heapArray[last] = NULL;
+    Node** temp = heap -> heapArray;
+    heap -> heapArray = realloc(heap -> heapArray, heap -> size * sizeof(Node*));
+    if(heap -> heapArray == NULL){
+        heap -> heapArray = temp;
+    }
+    temp = NULL;
+    heap -> size = heap -> size - 1;
+    heapify(heap -> heapArray[0], heap -> size);
+    return minNode;
+}
+
+
 void freeHeap(Heap* heap){
-    free_nodes_descent(heap -> root);
+    int size = heap -> size;
+    for(int i = 0; i < size; i++){
+        // printf("%x\n", &*(heap -> heapArray + i));
+        free(heap -> heapArray[i]);
+    }
+    free(heap -> heapArray);
     free(heap);
 }
 
-void heapify(Node* node){
-    if(node -> parent != NULL){
-        int v = node -> val;
-        int p = node -> parent -> val;
-        if(v < p){
-            swapValue(node);
+
+
+// Test heap whether all nodes' values are samller than the values of their children
+void verifyHeap(Heap* heap){
+    for(int i = 0; i < heap -> size; i++){
+        switch (heap -> heapArray[i] -> type) {
+            case 2:
+                if(heap -> heapArray[i] -> val > heap -> heapArray[i] -> rightchild -> val){
+                    printf("[ERROR] Node pointed by heapArray[%d] is bigger than its rightchild.", i);
+                    exit(3);
+                }
+            case 1:
+                if(heap -> heapArray[i] -> val > heap -> heapArray[i] -> leftchild -> val){
+                    printf("[ERROR] Node pointed by heapArray[%d] is bigger than its leftchild.", i);
+                    exit(3);
+                }
+            case 0:
+                break;
         }
-        heapify(node -> parent);
     }
 }
 
-
-Heap* buildTree(int* array, int lengthofArray){
-    Heap* heap = openHeap();
-    heap -> root -> val = array[0];
-    int i = 1;
-    heap -> size = lengthofArray;
-    Node* pointer = heap -> root;
-    Node* pointer_temp = NULL;
-    while(i < lengthofArray){
-        switch (pointer -> type) {
-            case 0:
-                pointer -> leftchild = newNode();
-                pointer -> type = SINGLE;
-                pointer -> leftchild -> parent = pointer;
-                pointer -> leftchild -> val = array[i];
-                // heap -> size = heap -> size + 1;
-                i = i + 1;
+void verifyNodesType(Heap* heap){
+    for(int i = 0; i < heap -> size; i++){
+        switch (heap -> heapArray[i] -> type) {
+            case 2:
+                if(heap -> heapArray[i] -> rightchild == NULL){
+                    printf("[ERROR] Node pointed by heapArray[%d] has type of FULL but no rightchild.", i);
+                    exit(3);
+                }
+                if(heap -> heapArray[i] -> leftchild == NULL){
+                    printf("[ERROR] Node pointed by heapArray[%d] has type of FULL but no leftchild.", i);
+                    exit(3);
+                }
                 break;
             case 1:
-                pointer -> rightchild = newNode();
-                pointer -> rightchild -> parent = pointer;
-                pointer -> rightchild -> val = array[i];
-                pointer -> type = FULL;
-                // *(heap -> size) = *(heap -> size) + 1;
-                i = i + 1;
-                pointer_temp = pointer -> leftchild;
-                pointer = pointer_temp;
-                pointer_temp = NULL;
+                if(heap -> heapArray[i] -> leftchild == NULL){
+                    printf("[ERROR] Node pointed by heapArray[%d] has type of SINGLE but no leftchild.", i);
+                    exit(3);
+                }
+                if(heap -> heapArray[i] -> rightchild != NULL){
+                    printf("[ERROR] Node pointed by heapArray[%d] has type of SINGLE but has rightchild.", i);
+                    exit(3);
+                }
                 break;
-            case 2:
-                exit(1);
+            case 0:
+                if(heap -> heapArray[i] -> leftchild != NULL){
+                    printf("[ERROR] Node pointed by heapArray[%d] has type of NULL but has rightchild.", i);
+                    exit(3);
+                }
+                if(heap -> heapArray[i] -> rightchild != NULL){
+                    printf("[ERROR] Node pointed by heapArray[%d] has type of SINGLE but has rightchild.", i);
+                    exit(3);
+                }
                 break;
         }
-
     }
-    if(pointer -> type == SINGLE){
-        heap -> last = pointer -> leftchild;
-    } else if(pointer -> type == NIL){
-        heap -> last = pointer -> parent -> rightchild;
-    } else{
-        fprintf(stderr, "pointerError %s:%d:\n", __FILE__, __LINE__);
-        exit(2);
-    }
-    pointer = NULL;
-    return heap;
 }
-
-// Heap* buildHeap(int* array, int lengthofArray){
-//     Heap* heap = buildTree(int* array, int lengthofArray);
-//     int count = 0
-//     while(count < lengthofArray){
-//
-//     }
-//
-// }
-
-
-
-
-
-
 
 
 void printNode(Node* node, FILE* file, int i){
@@ -145,32 +228,21 @@ void printNode(Node* node, FILE* file, int i){
         case 0:
             output = node -> val;
             fprintf(file, "%d\n", output);
-
-
     }
 }
 
-
-void printHeap(Heap* heap, char* filePath){
-    FILE* outputfile;
-    outputfile = fopen(filePath, "w");
+void printHeapTree(Heap* heap, char* filePath){
+    FILE* outputfile = fopen(filePath, "w");
     outputfile = fopen(filePath, "a");
     int indent = 0;
-    printNode(heap -> root, outputfile, indent);
+    printNode(heap -> heapArray[0], outputfile, indent);
     fclose(outputfile);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
+void printHeap(Heap* heap){
+    int size = heap -> size;
+    for(int i = 0; i < size; i++){
+        printf("%d, ", heap -> heapArray[i] -> val);
+    }
+    printf("\n");
+}

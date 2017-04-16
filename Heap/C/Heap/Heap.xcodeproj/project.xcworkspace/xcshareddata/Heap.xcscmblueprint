@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "086BEF20E6BB9473CBBF492F9ED6A763CED926BB",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "8844DD34A97C75EE83A5AF57B751CA6F3D091980" : 9223372036854775807,
+    "086BEF20E6BB9473CBBF492F9ED6A763CED926BB" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "20887390-3690-4A64-94A2-804068192223",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "8844DD34A97C75EE83A5AF57B751CA6F3D091980" : "",
+    "086BEF20E6BB9473CBBF492F9ED6A763CED926BB" : "DataStructure\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "Heap",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "Heap\/C\/Heap\/Heap.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/timerg\/DataStructure.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "086BEF20E6BB9473CBBF492F9ED6A763CED926BB"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/timerg\/FLOLAC.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "8844DD34A97C75EE83A5AF57B751CA6F3D091980"
+    }
+  ]
+}

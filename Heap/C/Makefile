@@ -1,8 +1,8 @@
 CFLAGS=-Wall -g
 
-all: Mytest
+all: main
 
-Mytest:	heap.o
+main:	heap.o
 
 clean: rm -f heap.o
 

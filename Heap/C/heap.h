@@ -1,5 +1,4 @@
-// Binary MinHeap with linked list
-// Use recursion to implement linled list
+// Binary MinHeap with array and linked list
 
 #ifndef _heap_h
 #define _heap_h
@@ -17,17 +16,18 @@ typedef struct Node{
 } Node;
 
 typedef struct Heap{
-    Node* root;
-    Node* last;
     int size;
+    Node** heapArray;
 } Heap;
 
-Heap* openHeap();
+
 void freeHeap(Heap* heap);
-Heap* buildTree(int* array, int lengthofArray);
-void heapify(Node* node);
+Heap* buildHeap(int* array, int size);
 Node* extractMin(Heap* heap);
-void printHeap(Heap* heap, char* filePath);
+void verifyHeap(Heap* heap);
+void verifyNodesType(Heap* heap);
+void printHeap(Heap* heap);
+void printHeapTree(Heap* heap, char* filePath);
 
 
 #endif
