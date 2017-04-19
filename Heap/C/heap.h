@@ -29,5 +29,4 @@ void verifyNodesType(Heap* heap);
 void printHeap(Heap* heap);
 void printHeapTree(Heap* heap, char* filePath);
 
-
 #endif
