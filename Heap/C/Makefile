@@ -5,7 +5,7 @@ all: main
 main:	heap.o
 
 clean:
-	rm -f heap.o
+	rm -rf heap.o
 
   # make can't see anything in the file for object.o,
   # but it does see an object.c file,
