@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <bits/stdc++.h>
 #include "linked.h"
 
 // data List = Nil              -- type = NIL
@@ -191,14 +190,14 @@ int* kmp_table(Node** w, int l_w){
     int j = 2;
     while(j < l_w){
         if(w[j - 1] -> val == w[i] -> val){
-            i = i + 1;
+            ++i;
             table[j] = i;
             j = j + 1;
-        } else if(i > 0){
+        } else if(i){
             i = table[i];
         } else {
             table[j] = 0;
-            j = j + 1;
+            ++j;
         }
     }
     return table;
@@ -212,13 +211,13 @@ int kmp_search(Node** s, Node** w, int* table, int l_s, int l_w, int start){
             if(i == l_w - 1){
                 return m;
             }
-            i = i + 1;
+            ++i;
         } else{
             if(table[i] > -1){
                 m = m + i - table[i];
                 i = table[i];
             } else{
-                m = m + 1;
+                ++m;
                 i = 0;
             }
         }
